@@ -1,0 +1,26 @@
+package com.book.library.payload.response;
+
+import com.book.library.domain.PaymentGateway;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class PaymentInitiatedResponse {
+
+    private  Long paymentId;
+    private PaymentGateway gateway;
+    private  String transactionId;
+    private String mix_by_yasId;
+    private Long amount;
+    private String description;
+    private String checkoutUrl;
+    private String message;
+    private Boolean success;
+
+
+}
