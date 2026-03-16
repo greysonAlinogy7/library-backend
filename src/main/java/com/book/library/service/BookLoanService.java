@@ -24,8 +24,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -87,7 +85,7 @@ public class BookLoanService implements IBookLoanService {
                 .user(user)
                 .book(book)
                 .type(BookLoanType.CHECKOUT)
-                .status(BookLoanStatus.CHECKED_OUT)
+                .status(BookLoanStatus.ACTIVE)
                 .checkoutDate(LocalDate.now())
                 .dueDate(LocalDate.now().plusDays(checkoutRequest.getCheckoutDays()))
                 .renewalCount(0)
@@ -95,6 +93,7 @@ public class BookLoanService implements IBookLoanService {
                 .notes(checkoutRequest.getNotes())
                 .isOverdue(false)
                 .overdueDays(0)
+                .returnDate(LocalDate.now().plusDays(checkoutRequest.getCheckoutDays()))
                 .build();
 
 // update book available copies
@@ -210,11 +209,11 @@ public class BookLoanService implements IBookLoanService {
 
     @Override
     public int updateOverDueBookLoan() {
-        Pageable pageable = PageRequest.of(0, 1000);
+        Pageable pageable = PageRequest.of(0, 10);
         Page<BookLoan> overduePage = bookLoanRepository.findOverdueBookLoans(LocalDate.now(), pageable);
         int updateCount = 0;
         for (BookLoan bookLoan : overduePage.getContent()){
-            if (bookLoan.getStatus() == BookLoanStatus.CHECKED_OUT){
+            if (bookLoan.getStatus() == BookLoanStatus.ACTIVE){
                 bookLoan.setStatus(BookLoanStatus.OVERDUE);
                 bookLoan.setIsOverdue(true);
 

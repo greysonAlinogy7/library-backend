@@ -63,7 +63,7 @@ public class SubscriptionService implements ISubscriptionService {
         User user = userService.getCurrentUser();
 
         Subscription subscription = subscriptionRepository
-                .findActiveSubscriptionByUserId(1L, LocalDate.now())
+                .findActiveSubscriptionByUserId(user.getId(), LocalDate.now())
                 .orElseThrow(() -> new SubscriptionException("No active subscription"));
 
         return subscriptionMapper.toDTO(subscription);

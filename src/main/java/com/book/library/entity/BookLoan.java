@@ -38,10 +38,10 @@ public class BookLoan {
     @Column( nullable = false)
     private LocalDate checkoutDate;
 
-    @Column( nullable = false)
+
     private LocalDate dueDate;
 
-    @Column( nullable = false)
+
     private LocalDate returnDate;
 
     private Integer renewalCount=0;
@@ -67,12 +67,12 @@ public class BookLoan {
     private LocalDateTime updatedAt;
 
     public  boolean isActive(){
-        return status==BookLoanStatus.CHECKED_OUT
+        return status==BookLoanStatus.ACTIVE
                 || status == BookLoanStatus.OVERDUE;
     }
 
     public boolean canRenew(){
-        return status==BookLoanStatus.CHECKED_OUT && !isOverdue && renewalCount<maxRenewals;
+        return status==BookLoanStatus.ACTIVE && !isOverdue && renewalCount<maxRenewals;
     }
 
 }

@@ -22,14 +22,14 @@ public interface BookLoanRepository extends JpaRepository<BookLoan, Long> {
     @Query("select case when count(bl) > 0 then true else false end " +
             "from BookLoan bl " +                // <-- space after 'bl'
             "where bl.user.id = :userId and bl.book.id = :bookId " +  // <-- spaces around 'and'
-            "and (bl.status = 'CHECKED_OUT' OR bl.status = 'OVERDUE')")
+            "and (bl.status = 'ACTIVE' OR bl.status = 'OVERDUE')")
     boolean hasActiveCheckout(@Param("userId") Long userId, @Param("bookId") Long bookId);
 
     @Query("""
     SELECT COUNT(bl)
     FROM BookLoan bl
     WHERE bl.user.id = :userId
-      AND (bl.status = 'CHECKED_OUT' OR bl.status = 'OVERDUE')
+      AND (bl.status = 'ACTIVE' OR bl.status = 'OVERDUE')
     """)
     long countActiveBookLoansByUser(@Param("userId") Long userId);
 
@@ -41,7 +41,7 @@ public interface BookLoanRepository extends JpaRepository<BookLoan, Long> {
     """)
     long countOverdueBookLoanByUser(@Param("userId") Long userId);
 
-    @Query("SELECT bl FROM BookLoan bl WHERE bl.dueDate < :currentDate" + " AND (bl.status = 'CHECKED_OUT' OR bl.status = 'OVERDUE')")
+    @Query("SELECT bl FROM BookLoan bl WHERE bl.dueDate < :currentDate" + " AND (bl.status = 'ACTIVE' OR bl.status = 'OVERDUE')")
     Page<BookLoan> findOverdueBookLoans(@Param("currentDate")LocalDate currentDate, Pageable pageable);
 
 

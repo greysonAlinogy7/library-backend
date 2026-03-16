@@ -1,7 +1,7 @@
 package com.book.library.domain;
 
 public enum BookLoanStatus {
-    CHECKED_OUT,
+    ACTIVE,
     RETURNED,
     OVERDUE,
     LOST,
