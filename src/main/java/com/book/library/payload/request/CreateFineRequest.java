@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CreateFineRequest {
-
+      private Long id;
     @NotNull(message = "Book Loan ID is mandatory")
     private Long bookLoanId;
 

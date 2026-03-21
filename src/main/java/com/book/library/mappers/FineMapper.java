@@ -11,6 +11,7 @@ public class FineMapper {
             return null;
         }
         FineDTO dto = new FineDTO();
+        dto.setId(fine.getId());
         if (fine.getBookLoan() != null){
             dto.setBookLoanId(fine.getBookLoan().getId());
             if (fine.getBookLoan().getBook() != null){

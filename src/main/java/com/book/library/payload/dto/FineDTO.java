@@ -1,17 +1,13 @@
 package com.book.library.payload.dto;
 import com.book.library.domain.FineStatus;
 import com.book.library.domain.FineType;
-import com.book.library.entity.User;
 import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Data
