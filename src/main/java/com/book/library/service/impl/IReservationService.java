@@ -7,9 +7,9 @@ import com.book.library.payload.response.PageResponse;
 
 public interface IReservationService {
     ReservationDTO createReservation(ReservationRequest reservationRequest);
-    ReservationDTO createReservationForUser(ReservationRequest reservationRequest ,Long userId);
-    ReservationDTO cancelReservation(Long reservationId);
-    ReservationDTO fulfillReservation(Long reservationId);
+    ReservationDTO createReservationForUser(ReservationRequest reservationRequest ,Long userId) throws Exception;
+    ReservationDTO cancelReservation(Long reservationId) throws Exception;
+    ReservationDTO fulfillReservation(Long reservationId) throws Exception;
     PageResponse<ReservationDTO> getMyReservations(ReservatonSearchRequest searchRequest);
     PageResponse<ReservationDTO> searchReservations(ReservatonSearchRequest searchRequest);
 

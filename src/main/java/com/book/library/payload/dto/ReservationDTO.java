@@ -25,11 +25,12 @@ public class ReservationDTO {
     private  String bookTitle;
     private  String bookIsbn;
     private  String bookAuthor;
-    private  String isBookAvailable;
+    private  boolean isBookAvailable;
 
     private ReservationStatus status;
     private LocalDateTime reservedAt;
     private LocalDateTime availableAt;
+    private LocalDateTime fulfilledAt;
     private LocalDateTime availableUntil;
     private LocalDateTime cancelledAt;
     private Integer queuePosition;

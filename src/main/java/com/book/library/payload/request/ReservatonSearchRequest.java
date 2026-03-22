@@ -2,12 +2,12 @@ package com.book.library.payload.request;
 
 
 import com.book.library.domain.ReservationStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Builder
 public class ReservatonSearchRequest {
     private Long userId;
