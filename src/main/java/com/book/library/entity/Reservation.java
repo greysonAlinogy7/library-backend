@@ -26,6 +26,7 @@ public class Reservation {
     @JoinColumn(name = "book_id")
     private Book book;
 
+    @Enumerated(EnumType.STRING)
     private ReservationStatus status = ReservationStatus.PENDING;
     private LocalDateTime reservedAt;
     private LocalDateTime availableAt;

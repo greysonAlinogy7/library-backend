@@ -13,15 +13,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ReservationResitory extends JpaRepository<Reservation, Long> {
+public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    @Query("""
-          SELECT COUNT(r)
-          FROM Reservation r
-          WHERE r.book.id = :bookId
-          AND r.status = 'PENDING'
-         """)
-    long countPendingReservationByBook(@Param("bookId") Long bookId);
+
 
     @Query("""
               SELECT r
@@ -46,10 +40,8 @@ public interface ReservationResitory extends JpaRepository<Reservation, Long> {
             "AND (r.status = 'PENDING' OR r.status = 'AVAILABLE') ")
     long countActiveReservationByUser(@Param("bookId") Long userId);
 
-    @Query("SELECT COUNT(r) FROM Reservation r "
-            + " WHERE r.book.id = :bookId"
-            + "AND r.status = 'PENDING'")
-    long countPendingReservationsByBook(@Param("bookId")Long bookId);
+    @Query("SELECT COUNT(r) FROM Reservation r WHERE r.book.id = :bookId AND r.status = 'PENDING'")
+    long countPendingReservationsByBook(@Param("bookId") Long bookId);
 
     @Query("SELECT r FROM Reservation r" +
             " WHERE r.status = :status AND r.availableUntil < :currentDateTime")
@@ -62,12 +54,11 @@ public interface ReservationResitory extends JpaRepository<Reservation, Long> {
     @Query("SELECT r FROM Reservation r " +
             "WHERE r.book.id = :bookId " +
             "AND r.user.id = :userId " +
-            "AND r.status = :status " +
-            "AND r.activeOnly = :activeOnly")
+            "AND r.status = :status "
+            )
     Page<Reservation> searchReservationWithFilters(
             @Param("userId") Long userId,
             @Param("bookId") Long bookId,
             @Param("status") ReservationStatus status,
-            @Param("activeOnly") boolean activeOnly,
             Pageable pageable);
 }

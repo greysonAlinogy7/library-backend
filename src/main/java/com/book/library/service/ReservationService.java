@@ -14,7 +14,7 @@ import com.book.library.payload.request.ReservatonSearchRequest;
 import com.book.library.payload.response.PageResponse;
 import com.book.library.repository.BookLoanRepository;
 import com.book.library.repository.BookRepository;
-import com.book.library.repository.ReservationResitory;
+import com.book.library.repository.ReservationRepository;
 import com.book.library.service.impl.IReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,7 +29,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ReservationService implements IReservationService {
-    private  final ReservationResitory reservationResitory;
+    private  final ReservationRepository reservationRepository;
     private  final BookLoanRepository bookLoanRepository;
     private final UserService userService;
     private  final BookRepository bookRepository;
@@ -55,7 +55,7 @@ public class ReservationService implements IReservationService {
         User user = userService.getCurrentUser();
         //2. validate book existence
         Book book = bookRepository.findById(reservationRequest.getBookId()).orElseThrow(() -> new Exception("book not found"));
-        if (reservationResitory.hasActiveReservation(userId, book.getId())){
+        if (reservationRepository.hasActiveReservation(userId, book.getId())){
             throw  new Exception("you have already reservation on this book");
         }
 
@@ -65,7 +65,7 @@ public class ReservationService implements IReservationService {
         }
 
         // check users active reservation limit
-        long activeReservations = reservationResitory.countActiveReservationByUser(userId);
+        long activeReservations = reservationRepository.countActiveReservationByUser(userId);
         if (activeReservations>=MAX_RESERVATION){
             throw  new Exception("you have reserved"+MAX_RESERVATION+"times");
         }
@@ -78,16 +78,16 @@ public class ReservationService implements IReservationService {
         reservation.setNotificationSent(false);
         reservation.setNotes(reservationRequest.getNotes());
 
-        long pendingCount = reservationResitory.countPendingReservationsByBook(book.getId());
+        long pendingCount = reservationRepository.countPendingReservationsByBook(book.getId());
         reservation.setQueuePosition((int)pendingCount+1);
-        Reservation savedReservation = reservationResitory.save(reservation);
+        Reservation savedReservation = reservationRepository.save(reservation);
 
         return reservationMapper.toDTO(savedReservation);
     }
 
     @Override
     public ReservationDTO cancelReservation(Long reservationId) throws Exception {
-        Reservation reservation = reservationResitory.findById(reservationId).orElseThrow(() -> new Exception("Reservation not found with ID"));
+        Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(() -> new Exception("Reservation not found with ID"));
         User currentUser = userService.getCurrentUser();
         if (!reservation.getUser().getId().equals(currentUser.getId()) && currentUser.getRole() != UserRole.ROLE_ADMIN){
             throw  new Exception("You can only cancel your own reservation");
@@ -99,20 +99,20 @@ public class ReservationService implements IReservationService {
         }
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservation.setCancelledAt(LocalDateTime.now());
-        Reservation savedReservation = reservationResitory.save(reservation);
+        Reservation savedReservation = reservationRepository.save(reservation);
 
         return reservationMapper.toDTO(savedReservation);
     }
 
     @Override
     public ReservationDTO fulfillReservation(Long reservationId) throws Exception {
-        Reservation reservation = reservationResitory.findById(reservationId).orElseThrow(() -> new Exception("Reservation not found with ID"));
+        Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(() -> new Exception("Reservation not found with ID"));
         if (reservation.getBook().getAvailableCopies()<=0){
             throw  new Exception("reservation is not available");
         }
         reservation.setStatus(ReservationStatus.FULFILLED);
         reservation.setFulFilledAt(LocalDateTime.now());
-        Reservation savedReservation = reservationResitory.save(reservation);
+        Reservation savedReservation = reservationRepository.save(reservation);
 
         CheckoutRequest request = new CheckoutRequest();
         request.setBookId(reservation.getBook().getId());
@@ -122,11 +122,10 @@ public class ReservationService implements IReservationService {
     }
 
     @Override
-    public PageResponse<ReservationDTO> getMyReservations(ReservatonSearchRequest searchRequest) {
-        Pageable pageable = createPageable(searchRequest);
-
-        Page<Reservation> reservationPage = reservationResitory.searchReservationWithFilters(searchRequest.getUserId(), searchRequest.getBookId(), searchRequest.getStatus(), pageable);
-        return buildPageResponse(reservationPage);
+    public PageResponse<ReservationDTO> getMyReservations(ReservatonSearchRequest searchRequest) throws Exception {
+       User user = userService.getCurrentUser();
+       searchRequest.setUserId(user.getId());
+        return searchReservations(searchRequest);
     }
 
     private  PageResponse<ReservationDTO> buildPageResponse(Page<Reservation> reservationPage){
@@ -149,7 +148,7 @@ public class ReservationService implements IReservationService {
     @Override
     public PageResponse<ReservationDTO> searchReservations(ReservatonSearchRequest searchRequest) {
         Pageable pageable = createPageable(searchRequest);
-        Page<Reservation> reservationPage = reservationResitory.searchReservationWithFilters(searchRequest.getUserId(), searchRequest.getBookId(), searchRequest.getStatus(), searchRequest.getActiveOnly() != null ? searchRequest.getActiveOnly() : false, pageable);
+        Page<Reservation> reservationPage = reservationRepository.searchReservationWithFilters(searchRequest.getUserId(), searchRequest.getBookId(), searchRequest.getStatus(), pageable);
         return buildPageResponse(reservationPage);
     }
 }
