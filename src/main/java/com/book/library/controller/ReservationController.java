@@ -19,7 +19,7 @@ public class ReservationController {
     private  final ReservationService reservationService;
 
     @PostMapping()
-    public ResponseEntity<?> createReservation(@Valid @RequestBody ReservationRequest reservationRequest){
+    public ResponseEntity<?> createReservation(@Valid @RequestBody ReservationRequest reservationRequest) throws Exception {
         ReservationDTO reservationDTO = reservationService.createReservation(reservationRequest);
         return ResponseEntity.ok(reservationDTO);
     }
@@ -52,10 +52,14 @@ public class ReservationController {
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "reservedAt") String sortBy,
             @RequestParam(defaultValue = "DESC") String sortDirection) throws Exception {
+
         ReservatonSearchRequest searchRequest = new ReservatonSearchRequest();
         searchRequest.setStatus(status);
+
+
         searchRequest.setActiveOnly(activeOnly);
         searchRequest.setPage(page);
+
         searchRequest.setSize(size);
         searchRequest.setSortBy(sortBy);
         searchRequest.setSortDirection(sortDirection);

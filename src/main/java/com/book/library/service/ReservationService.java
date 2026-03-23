@@ -38,8 +38,9 @@ public class ReservationService implements IReservationService {
     int MAX_RESERVATION = 5;
 
     @Override
-    public ReservationDTO createReservation(ReservationRequest reservationRequest) {
-        return null;
+    public ReservationDTO createReservation(ReservationRequest reservationRequest) throws Exception {
+      User user = userService.getCurrentUser();
+        return createReservationForUser(reservationRequest, user.getId());
     }
 
     @Override
@@ -65,7 +66,7 @@ public class ReservationService implements IReservationService {
         }
 
         // check users active reservation limit
-        long activeReservations = reservationRepository.countActiveReservationByUser(userId);
+        long activeReservations = reservationRepository.countActiveReservationByUser(reservationRequest.getBookId(),userId);
         if (activeReservations>=MAX_RESERVATION){
             throw  new Exception("you have reserved"+MAX_RESERVATION+"times");
         }
@@ -94,7 +95,7 @@ public class ReservationService implements IReservationService {
 
         }
 
-        if (reservation.canBeCancelled()){
+        if (!reservation.canBeCancelled()){
             throw new Exception("reservation can not be cancelled");
         }
         reservation.setStatus(ReservationStatus.CANCELLED);
@@ -129,15 +130,15 @@ public class ReservationService implements IReservationService {
     }
 
     private  PageResponse<ReservationDTO> buildPageResponse(Page<Reservation> reservationPage){
-        List<ReservationDTO> dtos = reservationPage.getContent().stream().map(reservationMapper::toDTO).toList();
+        List<ReservationDTO> DTos = reservationPage.getContent().stream().map(reservationMapper::toDTO).toList();
         PageResponse<ReservationDTO> response = new PageResponse<>();
-        response.setContent(dtos);
+        response.setContent(DTos);
         response.setPageNumber(reservationPage.getNumber());
         response.setPageSize(reservationPage.getSize());
         response.setTotalElement(reservationPage.getTotalElements());
         response.setTotalPages(reservationPage.getTotalPages());
         response.setLast(reservationPage.isLast());
-        return buildPageResponse(reservationPage);
+        return response;
     }
 
     private  Pageable createPageable(ReservatonSearchRequest searchRequest){
@@ -148,7 +149,7 @@ public class ReservationService implements IReservationService {
     @Override
     public PageResponse<ReservationDTO> searchReservations(ReservatonSearchRequest searchRequest) {
         Pageable pageable = createPageable(searchRequest);
-        Page<Reservation> reservationPage = reservationRepository.searchReservationWithFilters(searchRequest.getUserId(), searchRequest.getBookId(), searchRequest.getStatus(), pageable);
+        Page<Reservation> reservationPage = reservationRepository.findMyReservations(searchRequest.getUserId(), searchRequest.getBookId(), searchRequest.getStatus(), pageable);
         return buildPageResponse(reservationPage);
     }
 }

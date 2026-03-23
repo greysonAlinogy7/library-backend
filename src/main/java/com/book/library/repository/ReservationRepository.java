@@ -2,6 +2,7 @@ package com.book.library.repository;
 
 import com.book.library.domain.ReservationStatus;
 import com.book.library.entity.Reservation;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,10 +36,31 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             """)
     boolean hasActiveReservation(Long userId, Long bookId);
 
-    @Query("SELECT COUNT(r) FROM Reservation r" +
-            " WHERE r.user.id = :userId " +
-            "AND (r.status = 'PENDING' OR r.status = 'AVAILABLE') ")
-    long countActiveReservationByUser(@Param("bookId") Long userId);
+    @Query("""
+    SELECT r FROM Reservation r
+    WHERE r.user.id = :userId
+      AND (:bookId IS NULL OR r.book.id = :bookId)
+      AND (:status IS NULL OR r.status = :status)
+    ORDER BY r.reservedAt DESC
+""")
+    Page<Reservation> findMyReservations(
+            @Param("userId") Long userId,
+            @Param("bookId") Long bookId,     // can be null
+            @Param("status") ReservationStatus status,  // can be null
+            Pageable pageable
+    );
+
+    @Query("""
+    SELECT COUNT(r) 
+    FROM Reservation r 
+    WHERE r.user.id = :userId 
+    AND r.book.id = :bookId 
+    AND (r.status = 'PENDING' OR r.status = 'AVAILABLE')
+""")
+    long countActiveReservationByUser(
+            @Param("userId") Long userId,
+            @Param("bookId") Long bookId
+    );
 
     @Query("SELECT COUNT(r) FROM Reservation r WHERE r.book.id = :bookId AND r.status = 'PENDING'")
     long countPendingReservationsByBook(@Param("bookId") Long bookId);
@@ -61,4 +83,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("bookId") Long bookId,
             @Param("status") ReservationStatus status,
             Pageable pageable);
+
+
+
 }
