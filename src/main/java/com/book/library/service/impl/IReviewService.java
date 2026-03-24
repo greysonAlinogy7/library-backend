@@ -8,8 +8,8 @@ import com.book.library.payload.response.PageResponse;
 public interface IReviewService {
 
     BookReviewDTO createReview(CreateReviewRequest createReviewRequest) throws Exception;
-    BookReviewDTO updateReview(Long reviewId, UpdateReviewRequest updateReviewRequest);
-    void deleteReview(Long reviewId);
-    PageResponse<BookReviewDTO> getReviewByBookId(Long id, int page, int size);
+    BookReviewDTO updateReview(Long reviewId, UpdateReviewRequest updateReviewRequest) throws Exception;
+    void deleteReview(Long reviewId) throws Exception;
+    PageResponse<BookReviewDTO> getReviewByBookId(Long id, int page, int size) throws Exception;
 
 }
